@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <%-include('./partials/header.ejs') %>
+   <title>Add Blog</title>
+ 
+   <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" rel="stylesheet" />
+   <style>
+       #image-preview {
+           width: 100%; 
+           max-height: 300px;
+           object-fit: cover;
+       }
+       .modal {
+           display: none;
+           position: fixed;
+           top: 50%;
+           left: 50%;
+           transform: translate(-50%, -50%);
+           background: #fff;
+           padding: 20px;
+           z-index: 999;
+       }
+       .modal.active {
+           display: block;
+       }
+   </style>
+</head>
+<body>
+    
+   <%-include('./partials/nav.ejs') %>
+
+   <div class="container mt-3">
+       <form id="blogForm" action="/blog" method="post" enctype="multipart/form-data">
+           <div class="mb-3">
+               <label for="title" class="form-label">Title</label>
+               <input type="text" name="title" id="title" class="form-control" aria-describedby="title">
+           </div>
+
+           <div class="mb-3">
+               <label for="body" class="form-label">Body</label>
+               <textarea class="form-control" placeholder="Add content" id="body" name="body"></textarea>
+           </div>
+
+           <div class="mb-3">
+               <label for="coverimage" class="form-label">Cover Image</label>
+               <input type="file" name="coverimage" id="coverimage" class="form-control">
+           </div>
+           <div class="mb-3">
+               <img id="image-preview" src="#" alt="Image Preview" style="display: none;">
+           </div>
+
+       
+           <div id="cropperModal" class="modal">
+               <img id="crop-image" src="#" style="max-width: 100%;" />
+               <button type="button" id="cropButton" class="btn btn-primary mt-3">Crop & Save</button>
+           </div>
+
+           <div class="mb-3">
+               <button class="btn btn-primary">Submit</button>
+           </div>
+       </form>
+   </div>
+
+   <%-include('./partials/script.ejs') %>
+
+   
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+   <script>
+       let cropper;
+       const fileInput = document.getElementById('coverimage');
+       const imagePreview = document.getElementById('image-preview');
+       const cropperModal = document.getElementById('cropperModal');
+       const cropImage = document.getElementById('crop-image');
+       const cropButton = document.getElementById('cropButton');
+
+       fileInput.addEventListener('change', function (e) {
+           const file = e.target.files[0];
+           const reader = new FileReader();
+           
+           reader.onload = function (event) {
+               // Show modal for cropping
+               cropperModal.classList.add('active');
+               cropImage.src = event.target.result;
+
+               // Initialize cropper
+               cropper = new Cropper(cropImage, {
+                   aspectRatio: 16 / 9, // Aspect ratio for the cover image
+                   viewMode: 1
+               });
+           };
+
+           reader.readAsDataURL(file);
+       });
+
+       cropButton.addEventListener('click', function () {
+           const croppedCanvas = cropper.getCroppedCanvas({
+               width: 640, // Adjust the cropped image size
+               height: 360
+           });
+           imagePreview.src = croppedCanvas.toDataURL('image/jpeg');
+           imagePreview.style.display = 'block';
+
+           // Replace the file input with the cropped image
+           croppedCanvas.toBlob(function (blob) {
+               const file = new File([blob], 'cropped_image.jpg', { type: 'image/jpeg' });
+               const dataTransfer = new DataTransfer();
+               dataTransfer.items.add(file);
+               fileInput.files = dataTransfer.files;
+           });
+
+           // Close modal
+           cropperModal.classList.remove('active');
+           cropper.destroy(); // Remove cropper instance
+       });
+   </script>
+</body>
+</html>
