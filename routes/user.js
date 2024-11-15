@@ -48,22 +48,35 @@ router.post("/signin", async (req, res) => {
   }
 });
 
+router.post('/signup', upload.single("profileImageURL"), async (req, res) => {
+  const { fullname, email, password } = req.body;
+  console.log(req.body);
+  console.log("myyy", req.file);
 
-router.post('/signup',upload.single("profileImageURL"), async (req, res) => {
-    const { fullname, email, password  } = req.body;
-    console.log(req.body)
-    console.log("myyy",req.file)
+  try {
+      // Check if the user already exists in the database
+      const existingUser = await User.findOne({ email });
+      if (existingUser) {
+          return res.render('signup', { errorMessage: "User already exists" });
+      }
 
-    await User.create({
-        fullname,
-        email,
-        password,
-        profileImageURL:`/useruploads/${req.file.filename}`
-    });
+      // Create a new user if not found
+      await User.create({
+          fullname,
+          email,
+          password,
+          profileImageURL: `/useruploads/${req.file.filename}`
+      });
 
-    return res.redirect("/");
+      return res.redirect("/");
+  } catch (error) {
+      console.error("Error during signup:", error);
+      return res.render('signup', { errorMessage: "An error occurred during signup" });
+  }
 });
 
+
+ 
 router.get("/logout",(req,res)=>{
   res.clearCookie("token").redirect("/")
 })
