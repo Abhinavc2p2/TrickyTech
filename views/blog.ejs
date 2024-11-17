@@ -6,41 +6,55 @@
 </head>
 <body>
    <%-include('./partials/nav.ejs') %>
+
 <div class="mt-4 container">
+    <!-- Blog Title -->
     <h1><%= blog.title %></h1>
-    <img src="<%= blog.coverimage %>" alt="" width="500px">
-    <h4>
-       <pre class="mt-3"><%= blog.body %></pre>
-    </h4>
+
+    <!-- Blog Image -->
+    <img src="<%= blog.coverimage %>" alt="" width="100%" style="max-width: 500px; height: auto;">
+
+    <!-- Blog Body Content -->
+    <div class="mt-3">
+       <pre class="mt-3" style="white-space: pre-wrap; word-wrap: break-word; font-size: 1.2em;"><%= blog.body %></pre>
+    </div>
 </div>
+
 <div class="container mt-3">
    <div  class="mb-1"> 
-
-      <div class="mt-3 " > 
+      <div class="mt-3">
          <p>Created-By</p>
          <img src="<%= blog.createdby.profileImageURL %>" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;" alt=""> 
          <%= blog.createdby.fullname %>  
        </div>
+
    <h1>Comments (<%- (comments.length) %>)</h1>
+  
   <% if (locals.user) { %>
-   <form action="/blog/comment/<%= blog._id %>"  method="post">
-      <div class="mb-3" >
+   <form action="/blog/comment/<%= blog._id %>" method="post">
+      <div class="mb-3">
          <input type="text" class="form-control border border-black" id="content" name="content" aria-describedby="emailHelp" placeholder="Enter comment">
        </div>
        <div class="mb-3">
-         <button  class=" btn btn-primary" type="submit">Add</button>
+         <button class="btn btn-primary" type="submit">Add</button>
         </div>
    </form>
   <% } %>
-  <div class="mt-3   ">
-   <% comments.forEach(comment => { %>
-    <div class="mt-3 border pt-2" > 
-      <img src="<%= comment.createdby.profileImageURL%>"  style="width: 30px; height: 30px; border-radius: 50%; object-fit: cover;" alt=""> <%= comment.createdby.fullname %>  :<pre class="mb-3 "><%= comment.content %></pre>
-    </div>
-   <% }) %>
+
+  <div class="mt-3">
+    <% comments.forEach(comment => { %>
+      <div class="comment-box mt-3 border pt-2" style="margin-bottom: 10px; padding: 15px; border-radius: 8px;">
+        <div class="comment-header d-flex align-items-center" style="margin-bottom: 10px;">
+          <img src="<%= comment.createdby.profileImageURL%>" style="width: 30px; height: 30px; border-radius: 50%; object-fit: cover;" alt=""> 
+          <span style="margin-left: 10px;"><%= comment.createdby.fullname %></span>
+        </div>
+        <pre class="mb-3" style="white-space: pre-wrap; word-wrap: break-word; font-size: 1em;"><%= comment.content %></pre>
+      </div>
+    <% }) %>
+  </div>
 </div>
-</div>
-   <%-include('./partials/script.ejs') %> 
+
+<%-include('./partials/script.ejs') %> 
   
 </body>
 </html>
